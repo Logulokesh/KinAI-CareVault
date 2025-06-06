@@ -1,0 +1,731 @@
+{
+  "name": "KinAICarVaultDocument",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "*"
+        ],
+        "additionalFields": {}
+      },
+      "id": "5f098891-f355-49bc-8d33-ae1d994fd472",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -440,
+        100
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "6021108f-f0e8-4d7a-918b-f49baa28ba85",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf5b7ZpZY57lf5QE",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[0].file_id }}"
+      },
+      "id": "d530c985-9d9d-494a-a0b0-33413c258f31",
+      "name": "Receive the File",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -260,
+        100
+      ],
+      "typeVersion": 1.2,
+      "webhookId": "9b73b004-7064-433d-81bb-27083385684b",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf5b7ZpZY57lf5QE",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToProperty"
+      },
+      "id": "b8a9d4e7-1919-44e9-86f1-420d364a9c07",
+      "name": "Convert Image to Base64",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        -280,
+        300
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "text": "Analyze this document image and classify it. Provide the following information in JSON format:\n{\n  \"document_type\": \"one of: Receipt, Invoice, Bill, Statement, Medical_Report, Lab_Results, Prescription, Medical_Invoice\",\n  \"category\": \"specific category from: Groceries, Electronics, Fuel, Dining, Clothing, Hardware, Pharmacy, Department, Utilities, Transport, Entertainment, Health, Education, Medical, General\",\n  \"vendor\": \"company or store name if visible\",\n  \"amount\": \"total amount if visible (include $ symbol)\",\n  \"description\": \"brief description of the purchase or document\",\n  \"date\": \"transaction date if visible (DD/MM/YYYY format)\",\n  \"is_medical\": \"true if this is a medical document (lab results, medical reports, prescriptions, etc.), false otherwise\"\n}\n\nClassification examples:\n- Coles/Woolworths receipt → category: \"Groceries\", is_medical: false\n- JB Hi-Fi invoice → category: \"Electronics\", is_medical: false\n- Blood test results → category: \"Medical\", document_type: \"Lab_Results\", is_medical: true\n- Doctor's prescription → category: \"Medical\", document_type: \"Prescription\", is_medical: true\n- Medical bill from clinic → category: \"Health\", document_type: \"Medical_Invoice\", is_medical: true",
+        "options": {}
+      },
+      "id": "ec20ef71-9ac0-4e41-bb65-8174c8c4b7da",
+      "name": "Primary Document Classification",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Valid schema values\nconst validDocumentTypes = ['Receipt', 'Invoice', 'Bill', 'Statement', 'Medical_Report', 'Lab_Results', 'Prescription', 'Medical_Invoice'];\nconst validCategories = ['Groceries', 'Electronics', 'Fuel', 'Dining', 'Clothing', 'Hardware', 'Pharmacy', 'Department', 'Utilities', 'Transport', 'Entertainment', 'Health', 'Education', 'Medical', 'General'];\n\n// Parse date to YYYY-MM-DD\nfunction parseDate(dateStr) {\n  if (!dateStr || dateStr === 'Not specified') return new Date().toISOString().split('T')[0];\n  const [day, month, year] = dateStr.split('/');\n  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;\n}\n\n// Parse the primary AI response\nconst response = $input.item.json.response;\nlet parsedData;\n\ntry {\n  parsedData = JSON.parse(response);\n} catch (e) {\n  // Fallback parsing\n  const documentTypeMatch = response.match(/document_type[\"']?:\\s*[\"']([^\"']+)[\"']/i);\n  const categoryMatch = response.match(/category[\"']?:\\s*[\"']([^\"']+)[\"']/i);\n  const vendorMatch = response.match(/vendor[\"']?:\\s*[\"']([^\"']+)[\"']/i);\n  const amountMatch = response.match(/amount[\"']?:\\s*[\"']([^\"']+)[\"']/i);\n  const descriptionMatch = response.match(/description[\"']?:\\s*[\"']([^\"']+)[\"']/i);\n  const dateMatch = response.match(/date[\"']?:\\s*[\"']([^\"']+)[\"']/i);\n  const isMedicalMatch = response.match(/is_medical[\"']?:\\s*[\"']?(true|false)[\"']?/i);\n  \n  parsedData = {\n    document_type: documentTypeหนังสือ Match ? documentTypeMatch[1] : 'Unknown',\n    category: categoryMatch ? categoryMatch[1] : 'General',\n    vendor: vendorMatch ? vendorMatch[1] : 'Unknown',\n    amount: amountMatch ? amountMatch[1] : 'Not specified',\n    description: descriptionMatch ? descriptionMatch[1] : 'Document classification',\n    date: dateMatch ? parseDate(dateMatch[1]) : new Date().toISOString().split('T')[0],\n    is_medical: isMedicalMatch ? isMedicalMatch[1].toLowerCase() === 'true' : false\n  };\n}\n\n// Validate against schema\nparsedData.document_type = validDocumentTypes.includes(parsedData.document_type) ? parsedData.document_type : 'Unknown';\nparsedData.category = validCategories.includes(parsedData.category) ? parsedData.category : 'General';\n\n// Sanitize document_image_path\nconst sanitizePath = (str) => str.replace(/[^a-zA-Z0-9-_]/g, '_').replace(/_+/g, '_');\n\n// Create formatted data\nconst title = sanitizePath(`${parsedData.document_type}_${parsedData.category}_${parsedData.vendor}`);\nconst description = `Document Type: ${parsedData.document_type}\\nCategory: ${parsedData.category}\\nVendor: ${parsedData.vendor}\\nAmount: ${parsedData.amount}\\nDescription: ${parsedData.description}\\nDate: ${parsedData.date}\\n\\nProcessed from Telegram on ${new Date().toISOString()}`;\n\n// Project mapping\nconst categoryProjectMap = {\n  'Groceries': 1, 'Electronics': 2, 'Fuel': 3, 'Dining': 4, 'Clothing': 5,\n  'Hardware': 6, 'Pharmacy': 7, 'Department': 8, 'Utilities': 9, 'Transport': 10,\n  'Entertainment': 11, 'Health': 12, 'Education': 13, 'Medical': 14, 'General': 15\n};\n\nconst projectId = categoryProjectMap[parsedData.category] || categoryProjectMap['General'];\n\nreturn {\n  json: {\n    ...parsedData,\n    formatted_title: title,\n    formatted_description: description,\n    project_id: projectId,\n    original_response: response,\n    telegram_user_id: $('Telegram Trigger').item.json.message.from.id,\n    telegram_username: $('Telegram Trigger').item.json.message.from.username || 'Unknown'\n  }\n};"
+      },
+      "id": "ee7d5cb5-816d-473d-af11-82d072edbf65",
+      "name": "Process Primary Classification",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        120,
+        540
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6a9ec463-882d-4841-9c52-ecbd37296c44",
+      "name": "Is Medical Document?",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        260,
+        280
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "text": "Analyze this medical document in detail and extract the following information in JSON format:\n{\n  \"patient_name\": \"full name of the patient if visible\",\n  \"date_of_birth\": \"patient DOB if visible (DD/MM/YYYY)\",\n  \"test_date\": \"date of test/examination (DD/MM/YYYY)\",\n  \"doctor_name\": \"referring or examining doctor name\",\n  \"clinic_name\": \"medical facility/clinic name\",\n  \"test_type\": \"type of test (Blood Test, X-Ray, MRI, etc.)\",\n  \"test_results\": \"key findings or results summary\",\n  \"abnormal_values\": \"any values outside normal range\",\n  \"recommendations\": \"doctor recommendations or follow-up\",\n  \"diagnosis\": \"diagnosis if mentioned\",\n  \"medications\": \"prescribed medications if any\",\n  \"next_appointment\": \"follow-up appointment date if mentioned (DD/MM/YYYY)\",\n  \"urgency_level\": \"Low, Medium, High, Critical based on results\",\n  \"medical_category\": \"Cardiology, Pathology, Radiology, General, etc.\"\n}\n\nExtract as much medical information as possible from the document. If information is not visible, use 'Not specified'.",
+        "options": {}
+      },
+      "id": "68d6f734-d402-48cb-ad29-b5bb3025f5ea",
+      "name": "Medical AI Analysis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        440,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Valid schema values\nconst validUrgencyLevels = ['Low', 'Medium', 'High', 'Critical'];\nconst validMedicalCategories = ['Cardiology', 'Pathology', 'Radiology', 'General'];\n\n// Parse date to YYYY-MM-DD\nfunction parseDate(dateStr) {\n  if (!dateStr || dateStr === 'Not specified') return null;\n  const [day, month, year] = dateStr.split('/');\n  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;\n}\n\n// Parse medical AI response\nconst medicalResponse = $input.item.json.response;\nlet medicalData;\n\ntry {\n  medicalData = JSON.parse(medicalResponse);\n} catch (e) {\n  // Fallback parsing for medical data\n  medicalData = {\n    patient_name: 'Not specified',\n    date_of_birth: 'Not specified',\n    test_date: 'Not specified',\n    doctor_name: 'Not specified',\n    clinic_name: 'Not specified',\n    test_type: 'Not specified',\n    test_results: 'Not specified',\n    abnormal_values: 'Not specified',\n    recommendations: 'Not specified',\n    diagnosis: 'Not specified',\n    medications: 'Not specified',\n    next_appointment: 'Not specified',\n    urgency_level: 'Low',\n    medical_category: 'General'\n  };\n}\n\n// Validate and parse dates\nmedicalData.date_of_birth = parseDate(medicalData.date_of_birth);\nmedicalData.test_date = parseDate(medicalData.test_date);\nmedicalData.next_appointment = parseDate(medicalData.next_appointment);\n\n// Validate against schema\nmedicalData.urgency_level = validUrgencyLevels.includes(medicalData.urgency_level) ? medicalData.urgency_level : 'Low';\nmedicalData.medical_category = validMedicalCategories.includes(medicalData.medical_category) ? medicalData.medical_category : 'General';\n\n// Get primary classification data\nconst primaryData = $('Process Primary Classification').item.json;\n\n// Combine all data\nreturn {\n  json: {\n    ...primaryData,\n    medical_details: medicalData,\n    processing_timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "f967da3d-303b-4706-82e0-87ef1731e744",
+      "name": "Process Medical Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        740,
+        80
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "family_members"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telegram_user_id": "={{ $json.telegram_user_id }}",
+            "telegram_username": "={{ $json.telegram_username }}",
+            "name": "={{ $json.medical_details.patient_name }}",
+            "date_of_birth": "={{ $json.medical_details.date_of_birth !== 'Not specified' ? $json.medical_details.date_of_birth : null }}"
+          },
+          "matchingColumns": [
+            "telegram_user_id",
+            "name"
+          ],
+          "schema": [
+            {
+              "id": "telegram_user_id",
+              "displayName": "telegram_user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "telegram_username",
+              "displayName": "telegram_username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date_of_birth",
+              "displayName": "date_of_birth",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "811a0380-9579-40ef-b636-ebda70c1553e",
+      "name": "Upsert Family Member",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        920,
+        80
+      ],
+      "typeVersion": 2.4,
+      "credentials": {
+        "postgres": {
+          "id": "x0EMAUVTXDE69rVc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT 1",
+        "options": {}
+      },
+      "id": "8a4d5582-6d1c-4c1c-bca0-e00ef8509a5f",
+      "name": "Check DB Error",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1100,
+        80
+      ],
+      "typeVersion": 2.4,
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "credentials": {
+        "postgres": {
+          "id": "x0EMAUVTXDE69rVc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "medical_records"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "family_member_id": "={{ $('Upsert Family Member').item.json.id }}",
+            "document_type": "={{ $json.document_type }}",
+            "test_date": "={{ $json.medical_details.test_date !== 'Not specified' ? $json.medical_details.test_date : null }}",
+            "doctor_name": "={{ $json.medical_details.doctor_name }}",
+            "clinic_name": "={{ $json.medical_details.clinic_name }}",
+            "test_type": "={{ $json.medical_details.test_type }}",
+            "test_results": "={{ $json.medical_details.test_results }}",
+            "abnormal_values": "={{ $json.medical_details.abnormal_values }}",
+            "recommendations": "={{ $json.medical_details.recommendations }}",
+            "diagnosis": "={{ $json.medical_details.diagnosis }}",
+            "medications": "={{ $json.medical_details.medications }}",
+            "next_appointment": "={{ $json.medical_details.next_appointment !== 'Not specified' ? $json.medical_details.next_appointment : null }}",
+            "urgency_level": "={{ $json.medical_details.urgency_level }}",
+            "medical_category": "={{ $json.medical_details.medical_category }}",
+            "document_image_path": "={{ $json.formatted_title }}.jpg",
+            "telegram_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "b9bebc81-31e9-4362-acc1-d67f00935afd",
+      "name": "Insert Medical Record",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        720,
+        280
+      ],
+      "typeVersion": 2.4,
+      "credentials": {
+        "postgres": {
+          "id": "x0EMAUVTXDE69rVc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "financial_records"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telegram_user_id": "={{ $json.telegram_user_id }}",
+            "document_type": "={{ $json.document_type }}",
+            "category": "={{ $json.category }}",
+            "vendor": "={{ $json.vendor }}",
+            "amount": "={{ $json.amount !== 'Not specified' ? parseFloat($json.amount.replace(/[^0-9.-]/g, '').replace(/(?!^)-/g, '')) : null }}",
+            "transaction_date": "={{ $json.date }}",
+            "description": "={{ $json.description }}",
+            "document_image_path": "={{ $json.formatted_title }}.jpg",
+            "telegram_message_id": "={{ $('Telegram Trigger').item.json.message.message_id }}",
+            "vikunja_task_id": "={{ $('Create Task in Vikunja').item.json.id }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "a5683f6e-5d36-4275-a066-e63e81662943",
+      "name": "Insert Financial Record",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1060,
+        480
+      ],
+      "typeVersion": 2.4,
+      "credentials": {
+        "postgres": {
+          "id": "x0EMAUVTXDE69rVc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vikunja.logu.au/api/v1/tasks",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $credentials.vikunjaApiToken }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.formatted_title }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $json.formatted_description }}"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.project_id }}"
+            },
+            {
+              "name": "priority",
+              "value": "={{ $json.is_medical && $json.medical_details?.urgency_level === 'High' ? 4 : 2 }}"
+            },
+            {
+              "name": "labels",
+              "value": "=[{\"title\": \"{{ $json.document_type }}\", \"hex_color\": \"#3498db\"}, {\"title\": \"{{ $json.category }}\", \"hex_color\": \"#e74c3c\"}]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f9cecb0b-b200-4883-bd2a-71268437e27d",
+      "name": "Create Task in Vikunja",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        660,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vikunja.logu.au/api/v1/tasks/{{ $('Create Task in Vikunja').item.json.id }}/attachments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $credentials.vikunjaApiToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "files",
+              "value": "={{ $('Receive the File').item.binary.data }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "459a2a33-6eff-4bf1-b52f-9475955fa336",
+      "name": "Upload Image to Vikunja Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        860,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "✅ **Document Processed Successfully!**\n\n📋 **Type:** {{ $json.document_type }}\n🏷️ **Category:** {{ $json.category }}\n🏪 **Vendor:** {{ $json.vendor }}\n💰 **Amount:** {{ $json.amount }}\n📅 **Date:** {{ $json.date }}\n\n{{ $json.is_medical ? '🏥 **Medical Record Created**\\n👤 **Patient:** ' + $json.medical_details.patient_name + '\\n🩺 **Test:** ' + $json.medical_details.test_type + '\\n⚠️ **Urgency:** ' + $json.medical_details.urgency_level : '💼 **Financial Record Created**' }}\n\n📝 Task created in Vikunja with image attachment!",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "1e3386e5-a005-4011-898b-1a8d72b890d9",
+      "name": "Send Final Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1260,
+        480
+      ],
+      "typeVersion": 1.2,
+      "webhookId": "b0677aaa-486e-4fce-a5ba-50376e983376",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf5b7ZpZY57lf5QE",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "❌ **Error Processing Document**\n\nAn error occurred while processing the document. Please try again or contact support.",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "e7f8ef74-e24d-4f7f-ba4c-93de8577ffb1",
+      "name": "Send Error Notification",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1260,
+        80
+      ],
+      "typeVersion": 1.2,
+      "webhookId": "796052f6-6c8e-4e47-a24d-6cf9a1e2d54f",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf5b7ZpZY57lf5QE",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        460,
+        320
+      ],
+      "id": "ea0dacfd-35a7-4685-9920-354290f3fb1b",
+      "name": "Medical Model (MedGemma 3)",
+      "credentials": {
+        "ollamaApi": {
+          "id": "2aplAyvSGmwDKXon",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        540
+      ],
+      "id": "63476b7c-e952-4724-b28a-27ba01b8e86f",
+      "name": "Primary Chat Model (mistral)",
+      "credentials": {
+        "ollamaApi": {
+          "id": "2aplAyvSGmwDKXon",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Receive the File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive the File": {
+      "main": [
+        [
+          {
+            "node": "Convert Image to Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Image to Base64": {
+      "main": [
+        [
+          {
+            "node": "Primary Document Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Primary Document Classification": {
+      "main": [
+        [
+          {
+            "node": "Process Primary Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Primary Classification": {
+      "main": [
+        [
+          {
+            "node": "Is Medical Document?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Medical Document?": {
+      "main": [
+        [
+          {
+            "node": "Medical AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medical AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Process Medical Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Medical Data": {
+      "main": [
+        [
+          {
+            "node": "Upsert Family Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Family Member": {
+      "main": [
+        [
+          {
+            "node": "Check DB Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check DB Error": {
+      "main": [
+        [
+          {
+            "node": "Insert Medical Record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Medical Record": {
+      "main": [
+        [
+          {
+            "node": "Create Task in Vikunja",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Task in Vikunja": {
+      "main": [
+        [
+          {
+            "node": "Upload Image to Vikunja Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to Vikunja Task": {
+      "main": [
+        [
+          {
+            "node": "Insert Financial Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Financial Record": {
+      "main": [
+        [
+          {
+            "node": "Send Final Confirmation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medical Model (MedGemma 3)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Medical AI Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Primary Chat Model (mistral)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Primary Document Classification",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0ef617b6-2927-4f73-84de-cb65a67f05ea",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b10727e867e07db22a5a400712f78550fdcad58cc70272a703e1d9e1b8fbf69b"
+  },
+  "id": "pyWMMKlWY7a3H3QX",
+  "tags": []
+}

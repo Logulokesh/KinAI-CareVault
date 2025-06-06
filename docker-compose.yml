@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: kinai_postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: kinai_user
+      POSTGRES_PASSWORD: kinai_pass
+      POSTGRES_DB: kinai_carevault
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./document_processing_schema.txt:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - kinai_net
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: kinai_n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=kinai_carevault
+      - DB_POSTGRESDB_USER=kinai_user
+      - DB_POSTGRESDB_PASSWORD=kinai_pass
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=adminpass
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - GENERIC_TIMEZONE=Australia/Sydney
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - postgres
+    networks:
+      - kinai_net
+
+  vikunja:
+    image: vikunja/vikunja:latest
+    container_name: kinai_vikunja
+    restart: unless-stopped
+    ports:
+      - "3456:3456"
+    environment:
+      VIKUNJA_DATABASE_TYPE: postgres
+      VIKUNJA_DATABASE_HOST: postgres
+      VIKUNJA_DATABASE_USER: kinai_user
+      VIKUNJA_DATABASE_PASSWORD: kinai_pass
+      VIKUNJA_DATABASE_DATABASE: kinai_carevault
+      VIKUNJA_SERVICE_FRONTENDURL: http://localhost:3456
+    depends_on:
+      - postgres
+    networks:
+      - kinai_net
+
+volumes:
+  postgres_data:
+  n8n_data:
+
+networks:
+  kinai_net:
+    driver: bridge

@@ -1,0 +1,374 @@
+{
+  "name": "KinAICarVaultChat",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "a3c841ed-d7cc-4ffe-9d64-ac78347174ec",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        60,
+        -160
+      ],
+      "webhookId": "f2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf5b7ZpZY57lf5QE",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT fm.name, fm.date_of_birth, fm.blood_type, fm.primary_doctor, JSON_AGG(DISTINCT jsonb_build_object('condition', mc.condition_name, 'type', mc.condition_type, 'severity', mc.severity, 'status', mc.status)) FILTER (WHERE mc.id IS NOT NULL) as conditions, JSON_AGG(DISTINCT jsonb_build_object('medication', cm.medication_name, 'dosage', cm.dosage, 'frequency', cm.frequency, 'status', cm.status)) FILTER (WHERE cm.id IS NOT NULL) as medications, JSON_AGG(DISTINCT jsonb_build_object('allergen', a.allergen, 'type', a.allergy_type, 'severity', a.severity)) FILTER (WHERE a.id IS NOT NULL) as allergies FROM family_members fm LEFT JOIN medical_conditions mc ON fm.id = mc.family_member_id AND mc.status = 'Active' LEFT JOIN current_medications cm ON fm.id = cm.family_member_id AND cm.status = 'Active' LEFT JOIN allergies a ON fm.id = a.family_member_id WHERE fm.telegram_user_id = {{ $json.message.from.id }} GROUP BY fm.id, fm.name, fm.date_of_birth, fm.blood_type, fm.primary_doctor",
+        "options": {}
+      },
+      "id": "36968a3a-4f10-4b72-8569-654670422ed3",
+      "name": "Get Medical Profile",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [
+        200,
+        20
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "x0EMAUVTXDE69rVc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1466863d-8034-4c24-9d58-46ba17d434a1",
+      "name": "Check Profile Exists",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        360,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const userQuery = $('Telegram Trigger').item.json.message.text.toLowerCase();\nconst profiles = $('Get Medical Profile').items;\n\n// Simple keyword-based patient name extraction\nconst patientNameMatch = userQuery.match(/\\b(she|he|they|it)\\b.*?(?:named|name is)?\\s*(\\w+\\s*\\w*)/i);\nlet patientName = patientNameMatch ? patientNameMatch[2] : null;\n\n// If no name found, try to match first profile or prompt for clarification\nlet selectedProfile = profiles[0].json;\nif (patientName) {\n  const matchedProfile = profiles.find(p => p.json.name.toLowerCase().includes(patientName.toLowerCase()));\n  if (matchedProfile) {\n    selectedProfile = matchedProfile.json;\n  } else {\n    patientName = null; // No match, will prompt for clarification\n  }\n}\n\n// Prepare profile summary\nconst profileSummary = `Patient: ${selectedProfile.name}\\nDate of Birth: ${selectedProfile.date_of_birth || 'Not specified'}\\nBlood Type: ${selectedProfile.blood_type || 'Not specified'}\\nPrimary Doctor: ${selectedProfile.primary_doctor || 'Not specified'}\\nConditions: ${selectedProfile.conditions.length > 0 ? JSON.stringify(selectedProfile.conditions, null, 2) : 'None'}\\nMedications: ${selectedProfile.medications.length > 0 ? JSON.stringify(selectedProfile.medications, null, 2) : 'None'}\\nAllergies: ${selectedProfile.allergies.length > 0 ? JSON.stringify(selectedProfile.allergies, null, 2) : 'None'}`;\n\nreturn {\n  json: {\n    telegram_user_id: $('Telegram Trigger').item.json.message.from.id,\n    telegram_username: $('Telegram Trigger').item.json.message.from.username || 'Unknown',\n    user_query: userQuery,\n    patient_name: patientName || selectedProfile.name,\n    profile_exists: !!patientName,\n    profile_summary: profileSummary,\n    telegram_message_id: $('Telegram Trigger').item.json.message.message_id\n  }\n};"
+      },
+      "id": "8427c4a6-6f21-474c-bade-73fccf90f29b",
+      "name": "Process User Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7eb12c5d-8fbb-4551-943a-a4315f7618e8",
+      "name": "Check Patient Match",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        720,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "text": "You are a medical assistant. Based on the following patient profile and user query, provide a safe and appropriate medication recommendation for a high fever. Ensure the recommendation avoids any medications the patient is allergic to or contraindicated for their conditions or current medications. Provide the response in JSON format:\n{\n  \"recommendation\": \"specific medication or action (e.g., Paracetamol 500mg every 6 hours)\",\n  \"dosage\": \"dosage instructions\",\n  \"precautions\": \"any relevant precautions or warnings\",\n  \"consult_doctor\": \"true if doctor consultation is advised, false otherwise\"\n}\n\nPatient Profile:\n{{ $json.profile_summary }}\n\nUser Query: {{ $json.user_query }}\n\nIf no safe medication can be recommended, suggest consulting a doctor and explain why.",
+        "options": {}
+      },
+      "id": "52a7b259-d6ee-4016-9a43-d51ab1d0c400",
+      "name": "Medical AI Recommendation",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $input.item.json.response;\nlet recommendationData;\n\ntry {\n  recommendationData = JSON.parse(aiResponse);\n} catch (e) {\n  recommendationData = {\n    recommendation: 'Consult a doctor',\n    dosage: 'Not applicable',\n    precautions: 'Unable to process AI response. Please consult a doctor for a safe recommendation.',\n    consult_doctor: true\n  };\n}\n\n// Validate recommendation\nrecommendationData.recommendation = recommendationData.recommendation || 'Consult a doctor';\nrecommendationData.dosage = recommendationData.dosage || 'Not applicable';\nrecommendationData.precautions = recommendationData.precautions || 'None';\nrecommendationData.consult_doctor = recommendationData.consult_doctor !== undefined ? recommendationData.consult_doctor : true;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    recommendation: recommendationData\n  }\n};"
+      },
+      "id": "adc9864f-1b37-42a3-bdaf-6052bc549734",
+      "name": "Process Recommendation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "✅ **Medication Recommendation for {{ $json.patient_name }}**\n\n**Recommendation:** {{ $json.recommendation.recommendation }}\n**Dosage:** {{ $json.recommendation.dosage }}\n**Precautions:** {{ $json.recommendation.precautions }}\n{{ $json.recommendation.consult_doctor ? '⚠️ **Consult a Doctor:** Please consult your doctor before starting this medication.' : '' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "45e99269-3255-4e83-bace-9d8ffefaacea",
+      "name": "Send Recommendation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        -180
+      ],
+      "webhookId": "de1f4227-1643-4121-9375-675525f942e5",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf5b7ZpZY57lf5QE",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "❌ **Error Processing Request**\n\nAn error occurred while processing your request. Please try again or contact support.",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "b5378eca-e787-4b0d-a352-caf4f200e287",
+      "name": "Send Error Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        20
+      ],
+      "webhookId": "ac181971-af9f-485a-aa1a-d96fe340ab8d",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf5b7ZpZY57lf5QE",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "⚠️ **Patient Not Found**\n\nNo patient named '{{ $json.patient_name }}' found. Available patients:\n{{ $('Get Medical Profile').items.map(p => '- ' + p.json.name).join('\\n') }}\n\nPlease specify a patient name or upload a medical document to register a new patient.",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "75f62a43-be3c-4e69-839a-41030b87160a",
+      "name": "No Patient Match Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        -380
+      ],
+      "webhookId": "257d6aba-faba-49b6-8f25-f8ba456e7ead",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf5b7ZpZY57lf5QE",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        860,
+        -80
+      ],
+      "id": "66645e29-629d-4c60-8606-09642c0009bd",
+      "name": "Medical Model (MedGemma 3)",
+      "credentials": {
+        "ollamaApi": {
+          "id": "2aplAyvSGmwDKXon",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Medical Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Medical Profile": {
+      "main": [
+        [
+          {
+            "node": "Check Profile Exists",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Profile Exists": {
+      "main": [
+        [
+          {
+            "node": "Process User Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process User Query": {
+      "main": [
+        [
+          {
+            "node": "Check Patient Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Patient Match": {
+      "main": [
+        [
+          {
+            "node": "Medical AI Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medical AI Recommendation": {
+      "main": [
+        [
+          {
+            "node": "Process Recommendation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Error Notification",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "No Patient Match Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Recommendation": {
+      "main": [
+        [
+          {
+            "node": "Send Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Medical Model (MedGemma 3)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Medical AI Recommendation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fb0c6636-c149-4a08-8d9e-e22921f8035f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b10727e867e07db22a5a400712f78550fdcad58cc70272a703e1d9e1b8fbf69b"
+  },
+  "id": "oYXoXPJ4RnuGZBIs",
+  "tags": []
+}
