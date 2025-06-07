@@ -2,6 +2,10 @@
 
 **Your Intelligent Family Health & Financial Vault** 🤖✨
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Logulokesh/KinAI-CareVault/refs/heads/main/Logo-3.gif" alt="KinAi-Nexpatrol" width="100%" />
+</p>
+
 KinAI-CareVault is an automated AI-powered system for processing medical and financial documents via Telegram, managing comprehensive family health profiles, and providing safe medication recommendations. It leverages PostgreSQL for structured storage, n8n workflows for automation, and AI (via Ollama) for intelligent document analysis and personalized medical advice.
 
 ## 🌟 Key Features
