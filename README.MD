@@ -130,6 +130,8 @@ KinAI-CareVault is an automated AI-powered system for processing medical and fin
   </tr>
 </table>
 
+<p align="center"> <img src="https://raw.githubusercontent.com/Logulokesh/KinAI-CareVault/refs/heads/main/n8nConfig/care.gif" alt="KinAi" width="80%" /></p>
+
 
 ## 🌟 Key Features
 
