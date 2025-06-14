@@ -166,6 +166,15 @@ KinAI-CareVault is an automated AI-powered system for processing medical and fin
 - 🔄 **Error Recovery**: Robust error handling with automatic retries
 - 📈 **Monitoring**: Comprehensive logging and performance tracking
 
+
+## 📡 n8n Workflow Automation & 📸 Screenshots
+
+###  KinAICarVault Document 
+![n8n Workflow Overview](https://raw.githubusercontent.com/Logulokesh/KinAI-CareVault/refs/heads/main/n8nConfig/KinAICarVaultDocument.jpg)
+
+###  KinAICarVault Chat 
+![n8n Workflow Overview](https://github.com/Logulokesh/KinAI-CareVault/blob/main/n8nConfig/KinAICarVaultChat.jpg)
+
 ## 📋 Prerequisites
 
 ### 🗄️ PostgreSQL Database
