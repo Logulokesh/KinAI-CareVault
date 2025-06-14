@@ -169,11 +169,15 @@ KinAI-CareVault is an automated AI-powered system for processing medical and fin
 
 ## 📡 n8n Workflow Automation & 📸 Screenshots
 
-###  KinAICarVault Document 
-![n8n Workflow Overview](https://raw.githubusercontent.com/Logulokesh/KinAI-CareVault/refs/heads/main/n8nConfig/KinAICarVaultDocument.jpg)
+### 📄 KinAI CareVault Document  
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Logulokesh/KinAI-CareVault/refs/heads/main/n8nConfig/KinAICarVaultDocument.jpg" alt="KinAI CareVault Document" width="100%" />
+</p>
 
-###  KinAICarVault Chat 
-![n8n Workflow Overview](https://github.com/Logulokesh/KinAI-CareVault/blob/main/n8nConfig/KinAICarVaultChat.jpg)
+### 💬 KinAI CareVault Chat  
+<p align="center">
+  <img src="https://github.com/Logulokesh/KinAI-CareVault/blob/main/n8nConfig/KinAICarVaultChat.jpg?raw=true" alt="KinAI CareVault Chat" width="80%" />
+</p>
 
 ## 📋 Prerequisites
 
