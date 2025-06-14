@@ -8,6 +8,110 @@
 
 KinAI-CareVault is an automated AI-powered system for processing medical and financial documents via Telegram, managing comprehensive family health profiles, and providing safe medication recommendations. It leverages PostgreSQL for structured storage, n8n workflows for automation, and AI (via Ollama) for intelligent document analysis and personalized medical advice.
 
+<!-- Row 1: Identify the Challenge -->
+<table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+  <tr>
+    <td style="width: 200px; text-align: center; vertical-align: top; padding: 40px;">
+      <img src="https://raw.githubusercontent.com/Logulokesh/VICTutorAI-Offline-Educational-Activity-Generator/main/identify.png" style="width: 60%; height: auto;" alt="Identify" />
+    </td>
+    <td style="padding: 40px; vertical-align: top;">
+      <h2 style="color: #dc2626; display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <span style="font-size: 24px;">🔍</span> 1. Identify the Challenge
+      </h2>
+      <p>
+        Families juggle important health and financial records across scattered platforms—PDFs in email, prescriptions in chat, bills in drawers. This leads to:
+      </p>
+      <ul>
+        <li>❌ Missed or incorrect medications</li>
+        <li>❌ Disorganized or lost medical bills</li>
+        <li>❌ No unified view across the family</li>
+        <li>❌ Cloud-based solutions that risk privacy</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+<!-- Think Like a Human Agent -->
+<table width="100%" border="0">
+  <tr>
+    <td width="15%" valign="top">
+      <img src="https://github.com/Logulokesh/KinAI-Ecosystem/blob/main/img/Loading.gif" alt="KinAI GIF" width="100%" />
+    </td>
+    <td width="70%" valign="top">
+      <details>
+        <summary>🤝 Think Like a Human Agent</summary>
+        <em>You're not just building a tool. You're building peace of mind.</em>
+        <p>
+          It’s 7:45 PM. You’re unpacking groceries, your son starts coughing again 🤧, your partner asks where the dental invoice is 🦷, and your elderly parent hands you a new prescription 💊.
+        </p>
+        <p>
+          You pause—realizing all this info is everywhere: WhatsApp chats, fridge notes, scattered PDFs, forgotten screenshots.
+        </p>
+        <p>
+          Now imagine just asking:
+          <br><strong>“What medication is safe for my daughter’s asthma?”</strong><br>
+          <strong>“How much did we spend on health last month?”</strong>
+        </p>
+        <p>
+          KinAI-CareVault isn’t just about files—it’s about <strong>clarity without compromise</strong>. It keeps your data local 🔐, answers your questions with context 🧠, and respects your privacy like a trusted family member. No cloud. No surveillance. No noise.
+        </p>
+        <em>Because solving everyday life shouldn’t require tech support.</em>
+      </details>
+    </td>
+  </tr>
+</table>
+
+<!-- Row 2: Engineer the Approach -->
+<table style="width: 100%; border-collapse: collapse; font-family: sans-serif; background-color: #f9f9f9;">
+  <tr>
+    <td style="padding: 40px; vertical-align: top;">
+      <h2 style="color: #16a34a; display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <span style="font-size: 24px;">⚙️</span> 2. Engineer the Approach
+      </h2>
+      <p>
+        KinAI-CareVault combines local AI and smart automation into one private assistant for your family’s health and finance.
+      </p>
+      <ul>
+        <li>🤖 Local LLMs via Ollama for document understanding</li>
+        <li>📦 PostgreSQL for secure, structured storage</li>
+        <li>🔄 n8n workflows for real-time automation</li>
+        <li>✅ Vikunja for task tracking and accountability</li>
+        <li>📱 Telegram integration for simple family interaction</li>
+      </ul>
+    </td>
+    <td style="width: 200px; text-align: center; vertical-align: top; padding: 40px;">
+      <img src="https://raw.githubusercontent.com/Logulokesh/VICTutorAI-Offline-Educational-Activity-Generator/main/support.png" style="width: 60%; height: auto;" alt="Support" />
+    </td>
+  </tr>
+</table>
+
+<!-- Row 3: Implement the Outcome -->
+<table style="width: 100%; border-collapse: collapse; font-family: sans-serif;">
+  <tr>
+    <td style="width: 200px; text-align: center; vertical-align: top; padding: 40px;">
+      <img src="https://raw.githubusercontent.com/Logulokesh/VICTutorAI-Offline-Educational-Activity-Generator/main/empower.png" style="width: 60%; height: auto;" alt="Empower" />
+    </td>
+    <td style="padding: 40px; vertical-align: top;">
+      <h2 style="color: #dc2626; display: flex; align-items: center; gap: 10px; margin-top: 0;">
+        <span style="font-size: 24px;">✅</span> 3. Implement the Outcome
+      </h2>
+      <p>
+        The result is a smart, secure, always-available family assistant:
+      </p>
+      <ul>
+        <li>🔔 Telegram-based health and expense summaries</li>
+        <li>📋 AI-analyzed documents with real-time context</li>
+        <li>🧾 Searchable records for better care decisions</li>
+        <li>🛡️ Local-only data for full privacy control</li>
+      </ul>
+      <p>
+        KinAI-CareVault turns chaos into clarity—quietly working in the background to help your family thrive.
+      </p>
+    </td>
+  </tr>
+</table>
+
+
 ## 🌟 Key Features
 
 ### 📄 Smart Document Processing
