@@ -189,8 +189,8 @@ KinAI-CareVault is an automated AI-powered system for processing medical and fin
 ### ⚙️ n8n Workflow Platform
 - 📦 Install n8n (self-hosted or cloud, compatible versions)
 - 📥 Import workflow files:
-  - `medical_enhanced_n8n_workflow (2).json` - Document processing
-  - `fixed_n8n_workflow.json` - Medical queries and recommendations
+  - `KinAICarVaultDocument.json` - Document processing
+  - `KinAICarVaultChat.json` - Medical queries and recommendations
 - 🔐 Configure all service credentials:
   - 📱 Telegram API token
   - 🗄️ PostgreSQL connection details
