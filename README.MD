@@ -335,45 +335,25 @@ graph TD
     end
 ```
 
-## 🤝 Contributing
-
-We welcome contributions! 🎉
-
-### 📝 How to Contribute
-1. 🍴 **Fork** the repository
-2. 🌿 **Create** feature branch (`git checkout -b feature/amazing-feature`)
-3. 💾 **Commit** changes (`git commit -m '✨ Add amazing feature'`)
-4. 📤 **Push** to branch (`git push origin feature/amazing-feature`)
-5. 🔄 **Open** pull request
-
-### 🎯 Areas for Contribution
-- 🐛 Bug fixes and improvements
-- 🆕 New document types support
-- 🌍 Internationalization
-- 📱 Mobile app development
-- 🔒 Security enhancements
-- 📊 Analytics and reporting features
-
-## 📄 License
-
-This project is licensed under the MIT License 📜 - see the [LICENSE](LICENSE) file for details.
-
-## 📧 Contact & Support
-
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-username/kinai-carevault/issues)
-- 💬 **Questions**: [GitHub Discussions](https://github.com/your-username/kinai-carevault/discussions)
-- 📧 **Email**: [your-email@example.com](mailto:your-email@example.com)
-- 🌟 **Star** this repo if you find it helpful!
 
 ---
 
 <div align="center">
 
-**🏥🔒 KinAI-CareVault - Your Family's Intelligent Health & Financial Vault** 
+[![Contributors](https://contrib.rocks/image?repo=Logulokesh/KinAI-Ecosystem)](https://github.com/Logulokesh/KinAI-Ecosystem/graphs/contributors)
 
-*Made with ❤️ by the KinAI Team*
+</div>
 
-[![⭐ Star on GitHub](https://img.shields.io/github/stars/your-username/kinai-carevault?style=social)](https://github.com/your-username/kinai-carevault)
-[![🍴 Fork on GitHub](https://img.shields.io/github/forks/your-username/kinai-carevault?style=social)](https://github.com/your-username/kinai-carevault/fork)
+---
+
+## 📄 License
+
+Yes, it’s completely free — just like a gesture of support 🤝, a nod of appreciation 👍, or a reassuring smile 😊.
+
+---
+
+<div align="center">
+
+**Built with passion ❤️ for privacy, intelligence, and automation**
 
 </div>
