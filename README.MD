@@ -346,125 +346,63 @@ KinAI-CareVault is an automated AI-powered system for processing medical and fin
 
 ---
 
-### 🩺 Dietary Query for Gestational Diabetes
+### 🍎 Toddler Nutrition Query
 
-**📱 Question:** "What foods should Daughter avoid for her gestational diabetes? She's 28 weeks pregnant."
+**📱 Question:** "What foods should I avoid giving my 3-year-old? She's a picky eater and I want to make sure she's getting proper nutrition."
 
 <details>
-<summary>🤖 <strong>AI Dietary Response</strong></summary>
+<summary>🤖 <strong>AI Nutrition Response</strong></summary>
 
 ```
-🤰 Gestational Diabetes Dietary Guidance for Daughter
+👶 Toddler Nutrition Guidance for 3-Year-Old Daughter
 
 👤 PATIENT PROFILE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 Name: Daughter (Age: 32)
-🤰 Condition: Gestational Diabetes (28 weeks)
-📊 Target glucose: Fasting <95, 1hr <140, 2hr <120 mg/dL
-⚖️ Pre-pregnancy weight: 68kg
-📈 Current weight gain: 12kg (within normal range)
+📋 Age: 3 years | 🍽️ Eating Pattern: Picky eater
+🎯 Daily Needs: 1,000-1,400 calories | 💧 Fluids: 4-5 cups
 
-🚫 FOODS TO AVOID/LIMIT
+🚫 FOODS TO AVOID
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ CHOKING HAZARDS: Whole grapes, nuts, hard candy, popcorn
+🍭 HIGH SUGAR: Fruit juice, candy, sugary cereals
+🧂 HIGH SODIUM: Chips, processed meats, canned soups
+🥤 AVOID: Whole milk (after age 2), flavored drinks
 
-🍭 HIGH SUGAR FOODS (Complete Avoidance):
-• Regular soda and fruit juices
-• Candy, cookies, and pastries
-• Ice cream and frozen desserts
-• Sweetened yogurts and cereals
-• Honey, maple syrup, agave nectar
-
-🍞 REFINED CARBOHYDRATES (Severely Limit):
-• White bread, white rice, white pasta
-• Instant oatmeal and sugary cereals
-• Crackers and pretzels
-• Bagels and muffins
-• French fries and chips
-
-🍎 HIGH-GLYCEMIC FRUITS (Portion Control):
-• Watermelon, pineapple, dates
-• Ripe bananas and grapes
-• Fruit smoothies and dried fruits
-• Fruit cocktails in syrup
-
-🥛 PROBLEMATIC DAIRY:
-• Flavored milk and milkshakes
-• Sweetened condensed milk
-• High-sugar flavored yogurts
-
-✅ PREGNANCY-SAFE ALTERNATIVES
+✅ PICKY EATER WINS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🥗 SNEAKY NUTRITION:
+• Mini meatballs with hidden veggies
+• Fruit smoothies with spinach
+• Mac & cheese with cauliflower puree
 
-🥗 EXCELLENT CHOICES:
-• Leafy greens (spinach, kale, arugula)
-• Non-starchy vegetables (broccoli, cauliflower, zucchini)
-• Lean proteins (chicken, fish, tofu, eggs)
-• Healthy fats (avocado, nuts, olive oil)
-• Low-GI fruits (berries, apples, pears)
+🍎 TODDLER FAVORITES:
+• Sliced strawberries and banana wheels
+• Sweet potato fries (baked)
+• Cheese cubes and scrambled eggs
+• Apple slices with thin peanut butter
 
-🍽️ SMART CARB CHOICES:
-• Quinoa, brown rice, steel-cut oats
-• Sweet potatoes and legumes
-• Whole grain bread (1-2 slices max)
-• Greek yogurt (plain, unsweetened)
-
-📋 SAMPLE MEAL PLAN
+📋 SAMPLE DAY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌅 Breakfast: Whole grain cereal + milk + banana
+🍎 Snack: Berries + cheerios
+🍽️ Lunch: Half grilled cheese + cherry tomatoes + carrots
+🥜 Snack: Apple slices + peanut butter
+🍽️ Dinner: Mini meatballs + rice + steamed broccoli
 
-🌅 BREAKFAST:
-• 2 scrambled eggs with spinach
-• 1 slice whole grain toast
-• 1/2 avocado
-• Small handful of berries
-
-🍎 SNACK:
-• Greek yogurt with 10 almonds
-
-🍽️ LUNCH:
-• Grilled chicken salad with mixed greens
-• Olive oil and lemon dressing
-• 1/2 cup quinoa
-• Cherry tomatoes and cucumber
-
-🥜 SNACK:
-• Apple slices with 1 tbsp almond butter
-
-🍽️ DINNER:
-• Baked salmon with herbs
-• Roasted vegetables (broccoli, bell peppers)
-• Small sweet potato
-• Side salad
-
-🌙 EVENING SNACK:
-• Small handful of walnuts
-• Herbal tea (caffeine-free)
-
-⚠️ CRITICAL MONITORING
+🎯 PICKY EATER TIPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 Test blood glucose:
-• Fasting (upon waking)
-• 1 hour after each meal
-• Before bedtime
+• Offer new foods 8-10 times
+• Let her help with food prep
+• Make eating fun with colorful plates
+• Don't battle over meals
+• Serve tiny portions
 
-🚨 CONTACT DOCTOR IF:
-• Fasting glucose >95 mg/dL repeatedly
-• Post-meal glucose >140 mg/dL
-• Ketones in urine
-• Unusual fatigue or excessive thirst
+⚠️ CONSULT PEDIATRICIAN IF:
+• Weight loss or extreme food refusal
+• Eating fewer than 20 different foods
+• Signs of nutritional deficiencies
 
-💊 PRENATAL SUPPLEMENTS:
-✅ Continue prenatal vitamins
-✅ Folic acid 400mcg daily
-✅ Iron as recommended
-✅ Vitamin D3 1000-2000 IU
-
-👩‍⚕️ NEXT STEPS:
-• Schedule nutritionist consultation
-• Weekly glucose log review
-• Fetal monitoring at 32 weeks
-• Delivery planning discussion at 36 weeks
-
-🤰 Remember: Gestational diabetes is manageable with proper diet and monitoring. Your baby's health depends on maintaining stable blood sugar levels. Follow up with your obstetric team regularly.
+👩‍⚕️ Remember: Picky eating is normal! Focus on variety and positive mealtimes. Most children outgrow extreme pickiness by age 5-6.
 ```
 
 </details>
