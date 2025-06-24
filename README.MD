@@ -629,7 +629,7 @@ n8n start
 5. ✅ **Confirmation**: Receive detailed confirmation with extracted data
 
 ### 💊 Medical Query Example
-**Input**: `"What medication for Sarah's fever?"`
+**Input**: `"What medication for Daughter's fever?"`
 
 **Response**: 
 ```
