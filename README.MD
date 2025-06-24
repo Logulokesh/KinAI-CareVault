@@ -58,7 +58,7 @@ KinAI-CareVault is an automated AI-powered system for processing medical and fin
     </td>
     <td width="70%" valign="top">
       <details>
-        <summary>🤝 Think Like a Human Agent</summary>
+        <summary>🤝 Think Like a Human — Show Thinking</summary>
         <em>You're not just building a tool. You're building peace of mind.</em>
         <p>
           It’s 7:45 PM. You’re unpacking groceries, your son starts coughing again 🤧, your partner asks where the dental invoice is 🦷, and your elderly parent hands you a new prescription 💊.
